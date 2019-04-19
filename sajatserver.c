@@ -1,0 +1,320 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <unistd.h>
+#include <stdbool.h>
+#define BUFSIZE 1024
+#define PORT_NO 60000
+
+int palya[5][5];
+
+
+int main()
+{
+  int serverSocket;      
+  int playerSocket1;           
+  int playerSocket2;          
+  int flags;                
+  struct sockaddr_in server;        
+  struct sockaddr_in client;     
+  int server_size;                  
+  int client_size;  
+  int bytes;                   
+  int rcvsize;         
+  int trnmsize;            
+  int err;                    
+  char on;                         
+  char buffer[BUFSIZE+1];     
+  int lepesszam;
+  bool player1win;
+  bool player2win;
+
+
+  on                     = 1;
+  flags                  = 0;
+  bytes                  = BUFSIZE;
+  server_size            = sizeof server;
+  client_size            = sizeof client;
+  server.sin_family      = AF_INET;
+  server.sin_addr.s_addr = INADDR_ANY;
+  server.sin_port        = htons(PORT_NO);
+  serverSocket = socket(AF_INET, SOCK_STREAM, 0);
+  if(serverSocket<0){
+    fprintf(stderr, "Hiba! Nem tudtuk letrehozni a szerver socketet!\n");
+    exit(1);
+  }
+  
+
+  setsockopt(serverSocket, SOL_SOCKET, SO_REUSEADDR, (char *)&on, sizeof on);
+  setsockopt(serverSocket, SOL_SOCKET, SO_KEEPALIVE, (char *)&on, sizeof on);
+
+
+  err = bind(serverSocket, (struct sockaddr *) &server, server_size);
+  if(err<0){
+    fprintf(stderr, "Hiba! Nem tudtuk bindelni a szerver socketet!\n");
+    exit(2);
+  }
+  err = listen(serverSocket, 2);
+  if(err<0){
+    fprintf(stderr, "Hiba! Nem tudtuk hallgató módba kapcsolni a szervert!\n");
+    exit(3);
+  }
+
+
+  playerSocket1 = accept(serverSocket, (struct sockaddr *) &client, (socklen_t*)&client_size);
+  if(playerSocket1<0){
+    fprintf(stderr, "Hiba! Nem tudtuk elfogadni az 1. jatekos socketjet!\n");
+    exit(4);
+  }
+  else
+    {sprintf(buffer, "WAIT\n");
+    bytes = strlen(buffer);
+    // üzenet küldése az 1. játékosnak
+    trnmsize = send(playerSocket1, buffer, bytes, flags);
+    if(trnmsize<0){
+      fprintf(stderr, "Hiba! Nem tudtuk ertesiteni az 1. jatekost, hogy felcsatlakozott -e a másik!\n");
+      exit(6);
+    }}
+
+  playerSocket2 = accept(serverSocket, (struct sockaddr *) &client, (socklen_t*)&client_size);
+  if(playerSocket2<0){
+    fprintf(stderr, "Hiba! Nem tudtuk elfogadni a 2. jatekos socketjet!\n");
+    exit(5);
+  }
+  printf("A ket jatekos sikeresen felcsatlakozott!\n");
+
+  
+
+  while(1){
+
+
+    sprintf(buffer, "GAME_START\n");
+    bytes = strlen(buffer);
+    trnmsize = send(playerSocket1, buffer, bytes, flags);
+    if(trnmsize<0){
+      fprintf(stderr, "Hiba! Nem tudtuk ertesiteni az 1. jatekost a jatek kezdeterol!\n");
+      exit(6);
+    }
+    trnmsize = send(playerSocket2, buffer, bytes, flags);
+    if(trnmsize<0)
+    {
+      fprintf(stderr, "Hiba! Nem tudtuk ertesiteni a 2. jatekost a jatek kezdeterol!\n");
+      exit(7);
+    }
+    for (int i = 1; i < 6; ++i)
+  		{
+  			for (int j = 1; j <6; ++j)
+  				{
+  					palya[i][j]='-';
+  				}
+ 		 }
+     int sor,oszlop;
+    
+    char jatekos1[8];
+  	char jatekos2[8];
+    
+    lepesszam=0;
+    player1win=false;
+      player2win=false;
+    while(1)
+    {
+      
+      
+    	sprintf(buffer, "ENTER_MOVE\n");
+      bytes = strlen(buffer);
+      vissza:
+      trnmsize = send(playerSocket1, buffer, bytes, flags);
+      if(trnmsize<0)
+      {
+        fprintf(stderr, "Hiba! Nem tudtuk ertesiteni az 1. jatekost, hogy kuldje el a lépését!\n");
+        exit(8);
+      }
+     
+      rcvsize = recv(playerSocket1, jatekos1, 8, flags);
+      if(rcvsize<0)
+      {
+        fprintf(stderr, "Hiba! Nem tudtuk fogadni az 1. jatekos lépését!\n");
+        exit(9);
+      }
+      lepesszam++;
+      jatekos1[rcvsize-1] = '\0';
+      if(strcmp(jatekos1,"feladom")==0)
+         {player2win=true;
+          break;}
+        else{
+      sor=(int)jatekos1[0]-'0';
+      oszlop=(int)jatekos1[2]-'0';
+      if(palya[sor][oszlop]=='-')
+      {
+        
+      palya[sor][oszlop]='X';
+      
+      }
+      else{
+        goto vissza;
+      }
+      }
+      vissza1:
+      lepesszam++;
+      trnmsize = send(playerSocket2, buffer, bytes, flags);
+      if(trnmsize<0)
+      {
+        fprintf(stderr, "Hiba! Nem tudtuk ertesiteni a 2. jatekost, hogy kuldje el a lépését!\n");
+        exit(10);
+      }
+     
+      rcvsize = recv(playerSocket2, jatekos2, 8, flags);
+      if(rcvsize<0)
+      	{
+       	  fprintf(stderr, "Hiba! Nem tudtuk fogadni a 2. jatekos lépését!\n");
+      	  exit(11);
+ 		}
+      jatekos2[rcvsize-1] = '\0';
+
+      if(strcmp(jatekos2,"feladom")==0)
+          {player1win=true;
+            break;}
+        else{
+      sor=(int)jatekos2[0]-'0';
+      oszlop=(int)jatekos2[2]-'0';
+      if(palya[sor][oszlop]=='-')
+      {
+        
+      
+      palya[sor][oszlop]='O';
+      }
+      else
+      {
+        
+        goto vissza1;
+      }
+      }
+    for(int i = 1; i < 6; ++i)
+      { 
+          printf("%d\n",i );
+          if(palya[i][1]=='X'&&palya[i][2]=='X'&&palya[i][3]=='X'&&palya[i][4]=='X'&&palya[i][5]=='X')
+            {player1win=true;}
+          else if(palya[i][1]=='O'&&palya[i][2]=='O'&&palya[i][3]=='O'&&palya[i][4]=='O'&&palya[i][5]=='O')
+            {player2win=true;}
+          else if(palya[1][i]=='X'&&palya[2][i]=='X'&&palya[3][i]=='X'&&palya[4][i]=='X'&&palya[5][i]=='X')
+            {player1win=true;}
+          else if(palya[1][i]=='O'&&palya[2][i]=='O'&&palya[3][i]=='O'&&palya[4][i]=='O'&&palya[5][i]=='O')
+            {player2win=true;}
+      }
+       if(palya[1][1]=='O'&&palya[2][2]=='O'&&palya[3][3]=='O'&&palya[4][4]=='O'&&palya[5][5]=='O')
+            {player2win=true;}
+       else if(palya[1][1]=='X'&&palya[2][2]=='X'&&palya[3][3]=='X'&&palya[4][4]=='X'&&palya[5][5]=='X')
+            {player1win=true;}
+
+
+          
+      printf("%d\n%d\n%d\n",player1win,player2win,lepesszam);
+      printf("     |     |     |     |     |\n");
+      printf("  %c  |  %c  |  %c  |  %c  |  %c  |\n", palya[1][1], palya[1][2], palya[1][3],palya[1][4],palya[1][5]);
+
+      printf("_____|_____|_____|_____|_____|\n");
+      printf("     |     |     |     |     |\n");
+
+      printf("  %c  |  %c  |  %c  |  %c  |  %c  |\n", palya[2][1], palya[2][2], palya[2][3],palya[2][4],palya[2][5]);
+
+      printf("_____|_____|_____|_____|_____|\n");
+      printf("     |     |     |     |     |\n");
+
+      printf("  %c  |  %c  |  %c  |  %c  |  %c  |\n", palya[3][1], palya[3][2], palya[3][3],palya[3][4],palya[3][5]);
+
+      printf("_____|_____|_____|_____|_____|\n");
+      printf("     |     |     |     |     |\n");
+
+      printf("  %c  |  %c  |  %c  |  %c  |  %c  |\n", palya[4][1], palya[4][2], palya[4][3],palya[4][4],palya[4][5]);
+
+      printf("_____|_____|_____|_____|_____|\n");
+      printf("     |     |     |     |     |\n");
+
+      printf("  %c  |  %c  |  %c  |  %c  |  %c  |\n", palya[5][1], palya[5][2], palya[5][3],palya[5][4],palya[5][5]);
+
+      printf("     |     |     |     |     |\n\n");
+
+
+    
+      if (lepesszam>=25||player1win==true||player2win==true)
+      	{break;}
+    }
+
+    char choice1[5];
+    char choice2[5];
+
+    sprintf(buffer, "PLAY_AGAIN\n");
+    bytes = strlen(buffer);
+    trnmsize = send(playerSocket1, buffer, bytes, flags);
+    if(trnmsize<0){
+      fprintf(stderr, "Hiba! Nem tudtuk megkerdezni az 1. jatekost, hogy akar-e visszavagot!\n");
+      exit(12);
+    }
+    rcvsize = recv(playerSocket1, choice1, 5, flags);
+    if(rcvsize<0){
+      fprintf(stderr, "Hiba! Nem tudtuk fogadni, hogy az 1. jatekos akar-e visszavagot!\n");
+      exit(13);
+    }
+    choice1[rcvsize-1] = '\0';
+    trnmsize = send(playerSocket2, buffer, bytes, flags);
+    if(trnmsize<0){
+      fprintf(stderr, "Hiba! Nem tudtuk megkerdezni a 2. jatekost, hogy akar-e visszavagot!\n");
+      exit(14);
+    }
+    rcvsize = recv(playerSocket2, choice2, 5, flags);
+    if(rcvsize<0){
+      fprintf(stderr, "Hiba! Nem tudtuk fogadni, hogy a 2. jatekos akar-e visszavagot!\n");
+      exit(15);
+    }
+    choice2[rcvsize-1] = '\0';
+
+    if(!(strcmp(choice1, "igen")==0 && strcmp(choice2, "igen")==0)){
+      break;
+    }
+
+}
+  sprintf(buffer, "GAME_OVER\n");
+  bytes = strlen(buffer);
+ 
+  trnmsize = send(playerSocket1, buffer, bytes, flags);
+  if(trnmsize<0){
+    fprintf(stderr, "Hiba! Nem tudtuk megmondani az 1. jatekosnak, hogy vege a jateknak!\n");
+    exit(16);
+  }
+ 
+  trnmsize = send(playerSocket2, buffer, bytes, flags);
+  if(trnmsize<0){
+    fprintf(stderr, "Hiba! Nem tudtuk megmondani a 2. jatekosnak, hogy vege a jateknak!\n");
+    exit(17);
+  }
+  sprintf(buffer, " :: VEGEREDMENY ::\n");
+  if(lepesszam==25){
+    strcat(buffer, " :: DONTETLEN! ::\n");
+  }
+  else if(player1win==true){
+    strcat(buffer, " :: AZ 1. JATEKOS NYERT! ::\n");
+  }
+  else if(player2win==true){
+    strcat(buffer, " :: A 2. JATEKOS NYERT! ::\n");
+  }
+  bytes = strlen(buffer);
+
+  trnmsize = send(playerSocket1, buffer, bytes, flags);
+  if(trnmsize<0){
+    fprintf(stderr, "Hiba! Nem tudtuk elkuldeni a vegeredmenyt az 1. jatekosnak!\n");
+    exit(26);
+  }
+  trnmsize = send(playerSocket2, buffer, bytes, flags);
+  if(trnmsize<0){
+    fprintf(stderr, "Hiba! Nem tudtuk elkuldeni a vegeredmenyt a 2. jatekosnak!\n");
+    exit(27);
+  }
+  close(playerSocket2);
+  close(playerSocket1);
+  close(serverSocket);
+
+  exit(0);
+}
