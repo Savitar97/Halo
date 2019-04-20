@@ -9,7 +9,7 @@
 #define BUFSIZE 1024
 #define PORT_NO 60000
 
-int palya[5][5];
+char palya[5][5];
 
 
 int main()
@@ -104,9 +104,9 @@ int main()
       fprintf(stderr, "Hiba! Nem tudtuk ertesiteni a 2. jatekost a jatek kezdeterol!\n");
       exit(7);
     }
-    for (int i = 1; i < 6; ++i)
+    for (int i = 0; i < 5; ++i)
   		{
-  			for (int j = 1; j <6; ++j)
+  			for (int j = 0; j <5; ++j)
   				{
   					palya[i][j]='-';
   				}
@@ -145,8 +145,8 @@ int main()
          {player2win=true;
           break;}
         else{
-      sor=(int)jatekos1[0]-'0';
-      oszlop=(int)jatekos1[2]-'0';
+      sor=(int)jatekos1[0]-'1';
+      oszlop=(int)jatekos1[2]-'1';
       if(palya[sor][oszlop]=='-')
       {
         
@@ -154,6 +154,7 @@ int main()
       
       }
       else{
+        lepesszam--;
         goto vissza;
       }
       }
@@ -178,8 +179,8 @@ int main()
           {player1win=true;
             break;}
         else{
-      sor=(int)jatekos2[0]-'0';
-      oszlop=(int)jatekos2[2]-'0';
+      sor=(int)jatekos2[0]-'1';
+      oszlop=(int)jatekos2[2]-'1';
       if(palya[sor][oszlop]=='-')
       {
         
@@ -188,52 +189,51 @@ int main()
       }
       else
       {
-        
+        lepesszam--;
         goto vissza1;
       }
       }
-    for(int i = 1; i < 6; ++i)
+    for(int i = 0; i < 5; ++i)
       { 
-          printf("%d\n",i );
-          if(palya[i][1]=='X'&&palya[i][2]=='X'&&palya[i][3]=='X'&&palya[i][4]=='X'&&palya[i][5]=='X')
+          if(palya[i][0]=='X'&&palya[i][1]=='X'&&palya[i][2]=='X'&&palya[i][3]=='X'&&palya[i][4]=='X')
             {player1win=true;}
-          else if(palya[i][1]=='O'&&palya[i][2]=='O'&&palya[i][3]=='O'&&palya[i][4]=='O'&&palya[i][5]=='O')
+          else if(palya[i][0]=='O'&&palya[i][1]=='O'&&palya[i][2]=='O'&&palya[i][3]=='O'&&palya[i][4]=='O')
             {player2win=true;}
-          else if(palya[1][i]=='X'&&palya[2][i]=='X'&&palya[3][i]=='X'&&palya[4][i]=='X'&&palya[5][i]=='X')
+          else if(palya[0][i]=='X'&&palya[1][i]=='X'&&palya[2][i]=='X'&&palya[3][i]=='X'&&palya[4][i]=='X')
             {player1win=true;}
-          else if(palya[1][i]=='O'&&palya[2][i]=='O'&&palya[3][i]=='O'&&palya[4][i]=='O'&&palya[5][i]=='O')
+          else if(palya[0][i]=='O'&&palya[1][i]=='O'&&palya[2][i]=='O'&&palya[3][i]=='O'&&palya[4][i]=='O')
             {player2win=true;}
       }
-       if(palya[1][1]=='O'&&palya[2][2]=='O'&&palya[3][3]=='O'&&palya[4][4]=='O'&&palya[5][5]=='O')
+       if(palya[0][0]=='O'&&palya[1][1]=='O'&&palya[2][2]=='O'&&palya[3][3]=='O'&&palya[4][4]=='O')
             {player2win=true;}
-       else if(palya[1][1]=='X'&&palya[2][2]=='X'&&palya[3][3]=='X'&&palya[4][4]=='X'&&palya[5][5]=='X')
+       else if(palya[0][0]=='X'&&palya[1][1]=='X'&&palya[2][2]=='X'&&palya[3][3]=='X'&&palya[4][4]=='X')
             {player1win=true;}
 
 
-          
+          printf("%s\n",palya[0] );
       printf("%d\n%d\n%d\n",player1win,player2win,lepesszam);
       printf("     |     |     |     |     |\n");
-      printf("  %c  |  %c  |  %c  |  %c  |  %c  |\n", palya[1][1], palya[1][2], palya[1][3],palya[1][4],palya[1][5]);
+      printf("  %c  |  %c  |  %c  |  %c  |  %c  |\n", palya[0][0], palya[0][1], palya[0][2],palya[0][3],palya[0][4]);
 
       printf("_____|_____|_____|_____|_____|\n");
       printf("     |     |     |     |     |\n");
 
-      printf("  %c  |  %c  |  %c  |  %c  |  %c  |\n", palya[2][1], palya[2][2], palya[2][3],palya[2][4],palya[2][5]);
+      printf("  %c  |  %c  |  %c  |  %c  |  %c  |\n", palya[1][0], palya[1][1], palya[1][2],palya[1][3],palya[1][4]);
 
       printf("_____|_____|_____|_____|_____|\n");
       printf("     |     |     |     |     |\n");
 
-      printf("  %c  |  %c  |  %c  |  %c  |  %c  |\n", palya[3][1], palya[3][2], palya[3][3],palya[3][4],palya[3][5]);
+      printf("  %c  |  %c  |  %c  |  %c  |  %c  |\n", palya[2][0], palya[2][1], palya[2][2],palya[2][3],palya[2][4]);
 
       printf("_____|_____|_____|_____|_____|\n");
       printf("     |     |     |     |     |\n");
 
-      printf("  %c  |  %c  |  %c  |  %c  |  %c  |\n", palya[4][1], palya[4][2], palya[4][3],palya[4][4],palya[4][5]);
+      printf("  %c  |  %c  |  %c  |  %c  |  %c  |\n", palya[3][0], palya[3][1], palya[3][2],palya[3][3],palya[3][4]);
 
       printf("_____|_____|_____|_____|_____|\n");
       printf("     |     |     |     |     |\n");
 
-      printf("  %c  |  %c  |  %c  |  %c  |  %c  |\n", palya[5][1], palya[5][2], palya[5][3],palya[5][4],palya[5][5]);
+      printf("  %c  |  %c  |  %c  |  %c  |  %c  |\n", palya[4][0], palya[4][1], palya[4][2],palya[4][3],palya[4][4]);
 
       printf("     |     |     |     |     |\n\n");
 
