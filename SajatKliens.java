@@ -64,8 +64,24 @@ public class SajatKliens{
 		{
 		return ( choice.equals("igen") || choice.equals("nem") );
 		}
-
-
+		public static void kirajzol(String palya)
+		{
+			System.out.println("     |     |     |     |     |");
+      System.out.println("  "+palya.charAt(1)+"  |  "+palya.charAt(2)+"  |  "+palya.charAt(3)+"  |  "+palya.charAt(4)+"  |  "+palya.charAt(5)+"  |");
+      System.out.println("_____|_____|_____|_____|_____|");
+      System.out.println("     |     |     |     |     |");
+      System.out.println("  "+palya.charAt(6)+"  |  "+palya.charAt(7)+"  |  "+palya.charAt(8)+"  |  "+palya.charAt(9)+"  |  "+palya.charAt(10)+"  |");
+      System.out.println("_____|_____|_____|_____|_____|");
+      System.out.println("     |     |     |     |     |");
+      System.out.println("  "+palya.charAt(11)+"  |  "+palya.charAt(12)+"  |  "+palya.charAt(13)+"  |  "+palya.charAt(14)+"  |  "+palya.charAt(15)+"  |");
+      System.out.println("_____|_____|_____|_____|_____|");
+      System.out.println("     |     |     |     |     |");
+      System.out.println("  "+palya.charAt(16)+"  |  "+palya.charAt(17)+"  |  "+palya.charAt(18)+"  |  "+palya.charAt(19)+"  |  "+palya.charAt(20)+"  |");
+      System.out.println("_____|_____|_____|_____|_____|");
+      System.out.println("     |     |     |     |     |");
+      System.out.println("  "+palya.charAt(21)+"  |  "+palya.charAt(22)+"  |  "+palya.charAt(23)+"  |  "+palya.charAt(24)+"  |  "+palya.charAt(25)+"  |");
+      System.out.println("     |     |     |     |     |");
+		}
 
 
 	public static void main(String[] args) throws Exception{
@@ -73,7 +89,7 @@ public class SajatKliens{
 		int serverPort= DEFAULT_PORT;
 		int counter=0;
 		Socket socket = new Socket(serverAddress, serverPort);
-
+		String palya="";
 		BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
 		BufferedReader socketIn = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 		PrintWriter socketOut = new PrintWriter(socket.getOutputStream(), true);
@@ -82,10 +98,7 @@ public class SajatKliens{
 		String serverMsg = "";
 		System.out.println("Sikeres csatlakozas a szerverhez!");
 		
-		System.out.print("Mezők és sorok: ");
-		for(int i=0; i<5; i++){
-			System.out.print(SZAMOK[i] + " ");
-		}
+		
 		System.out.println();
 		while(true){
 			
@@ -98,16 +111,38 @@ public class SajatKliens{
 
 			else if(serverMsg.equals("GAME_START"))
 			{	
-				System.out.println("Indul a jatek!!!");	
+				System.out.println("Indul a jatek!!!");
+				System.out.println("Az először csatlakozott játékos kezd ő az első játékos");
+				System.out.println("Első_játékos:      X");
+				System.out.println("Második_játékos:   O");
+				System.out.println();
+				System.out.print("Mezők és sorok: ");
+				for(int i=0; i<5; i++)
+				{
+					System.out.print(SZAMOK[i] + " ");
+				}
+				System.out.println();
 			}
+			
 			else if(serverMsg.equals("ENTER_MOVE"))
 			{
+				//addig kérjük be az adatot amíg nem helyes
 				do{
 					System.out.print("Add meg a lépést: ");
 				}while(!isCorrectInput((myMsg = stdIn.readLine())));
 
+				//üzenet küldése a lépésről a szervernek
 				socketOut.println(myMsg);
 			}
+			else if(serverMsg.equals("PALYA")){
+				
+				// fejléc beolvasása, kírása
+				serverMsg = socketIn.readLine();
+				serverMsg = socketIn.readLine();
+				palya=serverMsg;
+				kirajzol(palya);
+			}
+			
 			else if(serverMsg.equals("PLAY_AGAIN")){
 				
 				System.out.println("Akarsz visszavagot jatszani?");
@@ -117,19 +152,25 @@ public class SajatKliens{
 
 				socketOut.println(myMsg);
 			}
+
 			else if(serverMsg.equals("GAME_OVER"))
 			{
 				serverMsg = socketIn.readLine();
 				System.out.println(serverMsg);
-			
 				serverMsg = socketIn.readLine();
 				System.out.println(serverMsg);
 			break;
 			}
+			
 
 
 		}
+		
+		
 		System.out.println("Kapcsolat bontasa.");
+		socketOut.close();
+		stdIn.close();
+		socketIn.close();
 		socket.close();
 
 	}
