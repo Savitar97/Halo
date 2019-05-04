@@ -10,7 +10,7 @@
 #define PORT_NO 60000
 
 
-void kirajzol(char palya[4][5])
+void kirajzol(char palya[5][5])
 {
       printf("     |     |     |     |     |\n");
       printf("  %c  |  %c  |  %c  |  %c  |  %c  |\n", palya[0][0], palya[0][1], palya[0][2],palya[0][3],palya[0][4]);
@@ -48,7 +48,7 @@ int main()
       int lepesszam;
       bool player1win;
       bool player2win;
-      char palya[4][5];
+      char palya[5][5];
 
       on                     = 1;
       flags                  = 0;
