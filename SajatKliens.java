@@ -10,12 +10,39 @@ public class SajatKliens{
 	
 	public static final String DEFAULT_ADDRESS = "127.0.0.1";
 	public static final int DEFAULT_PORT = 60000;
-
+	// a megadható értékek a lépéshez
 	public static final char[] SZAMOK = { '1', '2', '3', '4', '5'};
+
+	//felhasználónévbekérő fv
+	public static boolean isCorrectName(String name)
+	{
+		boolean correctname=false;
+		if(name.length()<2||name.length()>7)
+		{	
+			System.out.println("A névnek minimum 2, maximum 7 karakternek kell lennie");
+			return false;
+		}
+		for(int i=0; i<name.length(); i++)
+		{
+		
+			if(!((((int) name.charAt(i) >= 65) && ((int) name.charAt(i) <= 90)) || (((int) name.charAt(i) >= 97) && ((int) name.charAt(i) <= 122))))
+			{
+			
+			System.out.println("Csak az angol abc betűit használhatod!");
+				return false;
+			}
+			
+		}
+			return true;
+	}
+
+
+
+
 
 	public static boolean isCorrectInput(String input){
 		
-
+		//a feladás egy különleges eset ezért külön kezeljük
 		if(input.equals("feladom"))
 		{
 			return true;
@@ -59,35 +86,37 @@ public class SajatKliens{
 		return true;
 		}
 	
-
+		//új játék kezdéséhez a vizsgálat
 		public static boolean isCorrectChoice(String choice)
 		{
 		return ( choice.equals("igen") || choice.equals("nem") );
 		}
+
+
 		public static void kirajzol(String palya)
 		{
-			System.out.println("     |     |     |     |     |");
-      System.out.println("  "+palya.charAt(1)+"  |  "+palya.charAt(2)+"  |  "+palya.charAt(3)+"  |  "+palya.charAt(4)+"  |  "+palya.charAt(5)+"  |");
-      System.out.println("_____|_____|_____|_____|_____|");
-      System.out.println("     |     |     |     |     |");
-      System.out.println("  "+palya.charAt(6)+"  |  "+palya.charAt(7)+"  |  "+palya.charAt(8)+"  |  "+palya.charAt(9)+"  |  "+palya.charAt(10)+"  |");
-      System.out.println("_____|_____|_____|_____|_____|");
-      System.out.println("     |     |     |     |     |");
-      System.out.println("  "+palya.charAt(11)+"  |  "+palya.charAt(12)+"  |  "+palya.charAt(13)+"  |  "+palya.charAt(14)+"  |  "+palya.charAt(15)+"  |");
-      System.out.println("_____|_____|_____|_____|_____|");
-      System.out.println("     |     |     |     |     |");
-      System.out.println("  "+palya.charAt(16)+"  |  "+palya.charAt(17)+"  |  "+palya.charAt(18)+"  |  "+palya.charAt(19)+"  |  "+palya.charAt(20)+"  |");
-      System.out.println("_____|_____|_____|_____|_____|");
-      System.out.println("     |     |     |     |     |");
-      System.out.println("  "+palya.charAt(21)+"  |  "+palya.charAt(22)+"  |  "+palya.charAt(23)+"  |  "+palya.charAt(24)+"  |  "+palya.charAt(25)+"  |");
-      System.out.println("     |     |     |     |     |");
+			  System.out.println("     |     |     |     |     |");
+		      System.out.println("  "+palya.charAt(1)+"  |  "+palya.charAt(2)+"  |  "+palya.charAt(3)+"  |  "+palya.charAt(4)+"  |  "+palya.charAt(5)+"  |");
+		      System.out.println("_____|_____|_____|_____|_____|");
+		      System.out.println("     |     |     |     |     |");
+		      System.out.println("  "+palya.charAt(6)+"  |  "+palya.charAt(7)+"  |  "+palya.charAt(8)+"  |  "+palya.charAt(9)+"  |  "+palya.charAt(10)+"  |");
+		      System.out.println("_____|_____|_____|_____|_____|");
+		      System.out.println("     |     |     |     |     |");
+		      System.out.println("  "+palya.charAt(11)+"  |  "+palya.charAt(12)+"  |  "+palya.charAt(13)+"  |  "+palya.charAt(14)+"  |  "+palya.charAt(15)+"  |");
+		      System.out.println("_____|_____|_____|_____|_____|");
+		      System.out.println("     |     |     |     |     |");
+		      System.out.println("  "+palya.charAt(16)+"  |  "+palya.charAt(17)+"  |  "+palya.charAt(18)+"  |  "+palya.charAt(19)+"  |  "+palya.charAt(20)+"  |");
+		      System.out.println("_____|_____|_____|_____|_____|");
+		      System.out.println("     |     |     |     |     |");
+		      System.out.println("  "+palya.charAt(21)+"  |  "+palya.charAt(22)+"  |  "+palya.charAt(23)+"  |  "+palya.charAt(24)+"  |  "+palya.charAt(25)+"  |");
+		      System.out.println("     |     |     |     |     |");
 		}
 
 
-	public static void main(String[] args) throws Exception{
+	public static void main(String[] args) throws Exception
+	{
 		String serverAddress= DEFAULT_ADDRESS;
 		int serverPort= DEFAULT_PORT;
-		int counter=0;
 		Socket socket = new Socket(serverAddress, serverPort);
 		String palya="";
 		BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
@@ -104,7 +133,14 @@ public class SajatKliens{
 			
 			// üzenet olvasása a szervertől
 			serverMsg = socketIn.readLine();
-			if(serverMsg.equals("WAIT"))
+			if (serverMsg.equals("PLAYERNAME")) {
+				do{
+					System.out.print("Add meg a felhasználónevet: ");
+				}while(!isCorrectName((myMsg = stdIn.readLine())));
+				socketOut.println(myMsg);
+				
+			}
+			else if(serverMsg.equals("WAIT"))
 			{
 				System.out.println("Várakozás a másik játékosra....");	
 			}
@@ -116,7 +152,7 @@ public class SajatKliens{
 				System.out.println("Első_játékos:      X");
 				System.out.println("Második_játékos:   O");
 				System.out.println();
-				System.out.print("Mezők és sorok: ");
+				System.out.print("Mezők és sorok:(A lépéshez ezekből a variációkból lehet választani a lépés megadása szám-szám alakban történik) ");
 				for(int i=0; i<5; i++)
 				{
 					System.out.print(SZAMOK[i] + " ");
@@ -155,6 +191,8 @@ public class SajatKliens{
 
 			else if(serverMsg.equals("GAME_OVER"))
 			{
+				serverMsg = socketIn.readLine();
+				System.out.println(serverMsg);
 				serverMsg = socketIn.readLine();
 				System.out.println(serverMsg);
 				serverMsg = socketIn.readLine();
