@@ -5,7 +5,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-public class SajatKliens{
+public class Amoba{
 
 	
 	public static final String DEFAULT_ADDRESS = "127.0.0.1";
